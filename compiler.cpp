@@ -41,18 +41,20 @@ int getOperatorPos(const string& s)
 	int currentlyFound = -1;
 	int openedParentheses = 0;
 
-	for(size_t i = 0; i < s.length(); i++)
+//	(-) and (/) are left-associative so we need to go from
+//	the end to divide expression into operands correctly
+	for(size_t i = s.length(); i > 0; i--)
 	{
 		switch (s[i])
 		{
 			case '(':
-				openedParentheses++;
-				break;
-			case ')':
 				if(openedParentheses == 0)
 				{
 					throw "There are more closed than opened parentheses in " + s;
 				}
+				openedParentheses++;
+				break;
+			case ')':
 				openedParentheses--;
 				break;
 			case '+':
