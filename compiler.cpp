@@ -3,6 +3,8 @@ using namespace std;
 
 #include <string>
 
+int expr(const string&);
+
 bool isNum(const char ch)
 {
 	return ch>='0' && ch<='9';
@@ -10,11 +12,19 @@ bool isNum(const char ch)
 
 int toNum(const string& s)
 {
+	if(s[0] == '-')
+	{
+//		We need expr not toNum here, for situations like -(-a)
+		return -expr(s.substr(1, s.length()));
+	}
+
 	int res = 0;
+
 	for(size_t i = 0; i < s.length(); i++)
 	{
 		if(isNum(s[i]))
 		{
+//			(s[i]-'0') converts char to int
 			res = res*10 + s[i]-'0';
 		}
 		else
@@ -45,8 +55,15 @@ int getOperatorPos(const string& s)
 				}
 				openedParentheses--;
 				break;
-			case '+':case '-':
+			case '+':
 				if(openedParentheses == 0)
+				{
+					return i;
+				}
+				break;
+			case '-':
+//				Special case for unary minus - it is not operation but a part of number
+				if(openedParentheses == 0 && !(i == 0 || s[i-1] == '('))
 				{
 					return i;
 				}
@@ -106,7 +123,6 @@ int expr(const string& s1)
 	int leftOperand = expr(s.substr(0, getOperatorPos(s)));
 	int rightOperand = expr(s.substr(getOperatorPos(s)+1, s.length()));
 
-
 	switch (s[getOperatorPos(s)])
 	{
 		case '+': return leftOperand + rightOperand;
@@ -115,5 +131,6 @@ int expr(const string& s1)
 		case '/': return leftOperand / rightOperand;
 	}
 
+//	Actually we will never come here
 	return -1;
 }
